@@ -3,7 +3,7 @@ import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [AuthModule],
-  controllers: [],
+  controllers: [], //
   providers: [],
 })
 export class AppModule {}
