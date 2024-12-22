@@ -1,25 +1,31 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
-  private users = [
-    { id: 1, username: 'john', password: bcrypt.hashSync('password', 10) }, // Sample user
-  ];
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
+  ) {}
 
-  constructor(private jwtService: JwtService) {}
+  // Validate user credentials
+  async validateUser(name: string, password: string): Promise<any> {
+    const user = await this.usersService.findByUsername(name);
 
-  async validateUser(username: string, password: string): Promise<any> {
-    const user = this.users.find((u) => u.username === username);
     if (user && (await bcrypt.compare(password, user.password))) {
-      return { id: user.id, username: user.username };
+      const { password, ...result } = user; // Exclude password from the returned user object
+      return result;
     }
-    return null;
+    throw new UnauthorizedException('Invalid data service');
   }
 
+  // Generate a JWT token
   async login(user: any) {
-    const payload = { username: user.username, sub: user.id };
-    return { access_token: this.jwtService.sign(payload) };
+    const payload = { name: user.name, sub: user.id }; // Payload to encode in JWT
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
   }
 }
