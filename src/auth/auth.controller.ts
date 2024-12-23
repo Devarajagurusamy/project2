@@ -12,10 +12,10 @@ export class AuthController {
 
   ) {}
 
-  @Post('register')
-  async register(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
-  }
+  // @Post('register')
+  // async register(@Body() createUserDto: CreateUserDto) {
+  //   return this.usersService.create(createUserDto);
+  // }
   
   
   @Post('login')
@@ -30,7 +30,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   getProfile(@Request() req) {
-    console.log(req);
+    // console.log(req);
     return { message: `Welcome, ${req.user.name}` };
   }
 }
