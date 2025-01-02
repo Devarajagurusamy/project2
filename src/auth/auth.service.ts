@@ -21,12 +21,17 @@ export class AuthService {
     throw new UnauthorizedException('Invalid data service');
   }
 
-  // Generate a JWT token
-  async login(user: any) {
-    const payload = { name: user._doc.name, sub: user._doc._id }; // Payload to encode in JWT
-    //-------------------------------------------------------------------------------------->>>>doubt
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
+  async generateToken(user: any) {
+    const payload = { name: user._doc.name, sub: user._doc._id };
+    return this.jwtService.sign(payload); // Sign the JWT token
   }
+
+  // Generate a JWT token
+  // async login(user: any) {
+  //   const payload = { name: user._doc.name, sub: user._doc._id }; // Payload to encode in JWT
+  //   //-------------------------------------------------------------------------------------->>>>doubt
+  //   return {
+  //     access_token: this.jwtService.sign(payload),
+  //   };
+  // }
 }
