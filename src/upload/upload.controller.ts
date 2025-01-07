@@ -13,11 +13,11 @@ import { extname } from 'path';
 
 @Controller('upload')
 export class UploadController {
-  @Post('file')
+  @Post('')
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
-        destination: './uploads', // Folder where files will be stored
+        destination: './upload', // Folder where files will be stored
         filename: (req, file, callback) => {
           const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
           const ext = extname(file.originalname);
