@@ -67,6 +67,7 @@ export class PostsController {
     @Post()
     @UsePipes(new ValidationPipe())
     async create(@Body() createPostDto: CreatePostDto) {
+        console.log("createPostDto")
         return this.postsService.create(createPostDto);
     }
 

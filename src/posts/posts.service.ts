@@ -37,6 +37,7 @@ export class PostsService {
 
     // Create a new post
     async create(createPostDto: CreatePostDto): Promise<Post> {
+        console.log("createPostDto-----------")
         const createdPost = new this.postModel(createPostDto);
         return createdPost.save();
     }

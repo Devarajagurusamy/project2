@@ -17,14 +17,12 @@ import { UploadModule } from './upload/upload.module';
   
   
   
-export class AppModule implements NestModule {
+export class AppModule implements NestModule
+{
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(LoggerMiddleware) // Apply the logger middleware globally
       .forRoutes('*'); // Apply to all routes
 
-    consumer
-      .apply(ValidationMiddleware) // Apply validation middleware
-      .forRoutes('auth/login'); // Apply to a specific route (login)
   }
 }

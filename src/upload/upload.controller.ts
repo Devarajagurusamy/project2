@@ -63,9 +63,9 @@ export class UploadController {
     }
   }
 
-   @Get(':filename')
+  @Get(':filename')
   getFile(@Param('filename') filename: string, @Res() res: Response) {
-    const filePath = `./upload/${filename}`;
+    const filePath = `./uploads/${filename}`;
     return res.sendFile(filePath, { root: './' });
   }
 

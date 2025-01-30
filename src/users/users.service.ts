@@ -61,7 +61,10 @@ export class UsersService {
     return deletedUser;
   }
 
-  async findByUsername(name: string): Promise<User | null> {  
-    return this.userModel.findOne({ name:name }).exec();
-  }
+ async findByUsername(name: string): Promise<User | null> {
+  const user = await this.userModel.findOne({ name: name });
+  // console.log("USER SERVICE", user);  // Log the actual result (after resolving the promise)
+  return user;
+}
+
 }
