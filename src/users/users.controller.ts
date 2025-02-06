@@ -26,6 +26,21 @@ export class UsersController {
     return await this.usersService.findAll();
   }
 
+    // Fetch user by ID
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    if (!isValidObjectId(id)) {
+      throw new BadRequestException(`Invalid ID format: ${id}`);
+    }
+
+    const user = await this.usersService.findById(id);
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+
+    return user;
+  }
+
   // Create a new user
   @Post('signup')
   @UsePipes(new ValidationPipe())

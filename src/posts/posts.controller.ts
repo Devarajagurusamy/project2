@@ -93,6 +93,7 @@ export class PostsController {
 
     // Delete a post
   @UseGuards(JwtAuthGuard)
+  
   @Delete(':id')
   async delete(@Param('id') id: string, @Request() req: any) {
     const post = await this.postsService.findById(id);

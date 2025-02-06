@@ -8,7 +8,13 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
+  
+  async validateGoogleUser(user: any) {
+    const payload = { email: user.email, sub: user.googleId };
+    const token = this.jwtService.sign(payload);
+    return { user, token };
+  }
 
   // Validate user credentials
   async validateUser(name: string, password: string): Promise<any> {

@@ -6,9 +6,11 @@ import { UsersModule } from './users/users.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PostsModule } from './posts/posts.module';
 import { UploadModule } from './upload/upload.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+     ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRoot("mongodb://familiandbuser:focJJFECPXU5f9O3@cluster0-shard-00-00.pa5bd.mongodb.net:27017,cluster0-shard-00-01.pa5bd.mongodb.net:27017,cluster0-shard-00-02.pa5bd.mongodb.net:27017/project2?ssl=true&replicaSet=atlas-cejw98-shard-0&authSource=admin&retryWrites=true&w=majority"
 ), 
     AuthModule, UsersModule, PostsModule, UploadModule
