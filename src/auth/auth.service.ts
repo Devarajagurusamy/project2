@@ -1,25 +1,51 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { User, UserDocument } from '../users/user.schema';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { Strategy, VerifyCallback } from 'passport-google-oauth20';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private readonly usersService: UsersService,
-    private readonly jwtService: JwtService,
-  ) { }
+
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>,
+  private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,) { }
   
-  async validateGoogleUser(user: any) {
-    const payload = { email: user.email, sub: user.googleId };
-    const token = this.jwtService.sign(payload);
-    return { user, token };
+  
+  async validateGoogleUser({name, email, picture }: { name: string,email: string,picture: string }): Promise<any> {
+
+    const userExists = await this.userModel.findOne({ email: email });
+
+    if (!userExists) {
+      const createUser = new this.userModel({ name, email, picture });
+      
+      await createUser.save();
+      return createUser;
+    } else {
+      return userExists;
+    }
+
+  
+    // const payload = { email: user.email, sub: user.googleId };
+    // const token = this.jwtService.sign(payload);
+    // return { user, token };
+  }
+
+  async validateOrCreateUser(user: { email: string; name: string; picture: string }) {
+    let existingUser = await this.userModel.findOne({ email: user.email });
+
+    if (!existingUser) {
+      existingUser = await this.userModel.create(user);
+    }
+
+    return existingUser;
   }
 
   // Validate user credentials
   async validateUser(name: string, password: string): Promise<any> {
-    // console.log("AUTH SERVICE---------------", await this.usersService.findByUsername(name))
-    // console.log("NAME PASSWORD---------------",name,password)
     
     const user = await this.usersService.findByUsername(name);
     
@@ -36,12 +62,5 @@ export class AuthService {
     return this.jwtService.sign(payload); // Sign the JWT token
   }
 
-  // Generate a JWT token
-  // async login(user: any) {
-  //   const payload = { name: user._doc.name, sub: user._doc._id }; // Payload to encode in JWT
-  //   //-------------------------------------------------------------------------------------->>>>doubt
-  //   return {
-  //     access_token: this.jwtService.sign(payload),
-  //   };
-  // }
+  
 }
