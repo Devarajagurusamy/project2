@@ -3,8 +3,6 @@ import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { UsersService } from 'src/users/users.service';
-import { AuthGuard } from '@nestjs/passport';
-import axios from 'axios';
 import { OAuth2Client } from 'google-auth-library';
 
 
@@ -17,51 +15,43 @@ export class AuthController {
     private usersService: UsersService,
   ) {}
 
-  // Google Authentication
-  @Get('google')
-  @UseGuards(AuthGuard('google'))
-  async googleAuth() {
-    console.log('Google Auth------');
-    // Redirects to Google OAuth
-  }
-
-  @Get('google/callback')
-  @UseGuards(AuthGuard('google'))
-  async googleAuthRedirect(@Req() req, @Res() res: Response) {
-    console.log('Google Auth Success:', req.user);
-
-    if (!req.user) {
-      throw new HttpException('Google authentication failed', HttpStatus.UNAUTHORIZED);
-    }
-
-    const authResponse = await this.authService.validateGoogleUser(req.user);
-
-    // Set token as an HTTP-only cookie
-    res.cookie('jwt', authResponse.token, { httpOnly: true, secure: true, maxAge: 3600000 });
-
-  }
-
   @Post('google')
-  async googleAuthToken(@Body('token') token: string) {
+  async googleAuthToken(@Body('token') token: string, @Res() res: Response) {
     try {
-
+      // Verify Google token
+      
       const ticket = await client.verifyIdToken({
         idToken: token,
         audience: "20961636685-ef7b6atj562vtj8uunbuchppidd2q3u6.apps.googleusercontent.com",
       });
 
       const payload = ticket.getPayload();
+      if (!payload) {
+        throw new HttpException('Invalid Google Token', HttpStatus.UNAUTHORIZED);
+      }
 
-
-
-      const data = await this.authService.validateGoogleUser({
+      // Validate or register user in database
+      const user = await this.authService.validateGoogleUser({
         name: payload.name,
         email: payload.email,
-        picture: payload.picture
+        picture: payload.picture,
       });
-      return data;
 
+      console.log("user------------->>",user)
+
+      // Generate JWT token
+      const jwtToken = await this.authService.generateToken(user);
+
+      // Set HTTP-only cookie
+      res.cookie('auth_token', jwtToken, {
+        httpOnly: true,
+        secure: false,
+      });
+
+      return res.json(user);
+      
     } catch (error) {
+      console.error("Google Auth Error:", error);
       throw new HttpException('Invalid Google Token', HttpStatus.UNAUTHORIZED);
     }
   }
@@ -87,9 +77,21 @@ export class AuthController {
     return res.json({ message: 'Logged out successfully' });
   }
 
-  @UseGuards(JwtAuthGuard)
+   @UseGuards(JwtAuthGuard)
   @Get('profile')
-  getProfile(@Request() req) {
-    return { message: `Welcome, ${req.user.name}` };
+  async getProfile(@Request() req) {
+     const user = await this.usersService.findById(req.user.id); // Fetch from DB
+     console.log("user-----",user)
+    if (!user) {
+      return { message: 'User not found' };
+    }
+    return {
+      name: user.name,
+      email: user.email,
+    };
   }
 }
+
+
+
+

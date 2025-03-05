@@ -85,29 +85,30 @@ export class PostsController {
         if (!isValidObjectId(id)) {
             throw new BadRequestException(`Invalid ID format: ${id}`);
         }
-        if (post.author !== req.user.name) {
+        if (post.author.toString().toLowerCase() !== req.user.name.toLowerCase()) {
       throw new HttpException('Forbidden: You do not own this post', HttpStatus.FORBIDDEN);
     }
         return this.postsService.update(id, updatePostDto);
     }
 
     // Delete a post
-  @UseGuards(JwtAuthGuard)
-  
-  @Delete(':id')
-  async delete(@Param('id') id: string, @Request() req: any) {
+@UseGuards(JwtAuthGuard)
+@Delete(':id')
+async delete(@Param('id') id: string, @Request() req: any) {
+    console.log("id-------",req.user.name)
     const post = await this.postsService.findById(id);
-    if (!post) {
-      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
-    }
-    if (post.author !== req.user.name) {
-      throw new HttpException('Forbidden: You do not own this post', HttpStatus.FORBIDDEN);
-    }
-    return this.postsService.delete(id);
-    }
-    
-    
 
+    if (!post) {
+        throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+
+    // Ensure the correct field is being checked
+    if (post.author.toString().toLowerCase() !== req.user.name.toLowerCase()) {
+        throw new HttpException('Forbidden: You do not own this post', HttpStatus.FORBIDDEN);
+    }
+
+    return await this.postsService.delete(id);
+}
 
     
 }

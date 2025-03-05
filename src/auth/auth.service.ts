@@ -28,10 +28,6 @@ export class AuthService {
       return userExists;
     }
 
-  
-    // const payload = { email: user.email, sub: user.googleId };
-    // const token = this.jwtService.sign(payload);
-    // return { user, token };
   }
 
   async validateOrCreateUser(user: { email: string; name: string; picture: string }) {

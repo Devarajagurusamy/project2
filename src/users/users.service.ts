@@ -63,7 +63,6 @@ export class UsersService {
 
  async findByUsername(name: string): Promise<User | null> {
   const user = await this.userModel.findOne({ name: name });
-  // console.log("USER SERVICE", user);  // Log the actual result (after resolving the promise)
   return user;
 }
 
